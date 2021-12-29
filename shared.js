@@ -15,14 +15,14 @@ async function streamToBuffer(readableStream) {
     });
   }
   
-  async function main(shareName, fileName) {
-    const fileClient = shareServiceClient
-      .getShareClient(shareName)
-      .rootDirectoryClient.getFileClient(fileName);
+async function main(shareName, fileName) {
+  const fileClient = shareServiceClient
+    .getShareClient(shareName)
+    .rootDirectoryClient.getFileClient(fileName);
 
-    const downloadFileResponse = await fileClient.download();
-    let response= await streamToBuffer(downloadFileResponse.readableStreamBody)
-    return response
-  }
-  
-  module.exports = main
+  const downloadFileResponse = await fileClient.download();
+  let response= await streamToBuffer(downloadFileResponse.readableStreamBody)
+  return response
+}
+
+module.exports = main
