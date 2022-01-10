@@ -1,6 +1,7 @@
 const { ShareServiceClient, StorageSharedKeyCredential } = require("@azure/storage-file-share");
+const { BlobServiceClient } = require('@azure/storage-blob');
 const connStr = process.env.STORAGE_KEY
-const shareServiceClient = ShareServiceClient.fromConnectionString(connStr);
+//const shareServiceClient = ShareServiceClient.fromConnectionString(connStr);
 
 async function streamToBuffer(readableStream) {
     return new Promise((resolve, reject) => {
@@ -14,7 +15,7 @@ async function streamToBuffer(readableStream) {
       readableStream.on("error", reject);
     });
   }
-  
+ /* 
 async function main(shareName, fileName) {
   const fileClient = shareServiceClient
     .getShareClient(shareName)
@@ -24,5 +25,14 @@ async function main(shareName, fileName) {
   let response= await streamToBuffer(downloadFileResponse.readableStreamBody)
   return response
 }
+*/
+async function connectToBlobContainer(filename) {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_KEY);
+  const containerClient = blobServiceClient.getContainerClient(process.env.CONTAINER);
+  const blockBlobClient = containerClient.getBlockBlobClient(filename)
+  const data = await blockBlobClient.download(0)
+  let response = await streamToBuffer(data.readableStreamBody)
+  return response
+}
 
-module.exports = main
+module.exports = connectToBlobContainer
