@@ -6,7 +6,7 @@ const MimeType = require('mime-types')
 const shared = require('./shared')
 
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 8080
 async function getKV () {
     try {
         const credential = new DefaultAzureCredential();
