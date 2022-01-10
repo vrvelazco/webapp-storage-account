@@ -25,38 +25,45 @@ async function getKV () {
 }
 getKV()
 .then(() => {
-    console.log('connected to kv')
+    console.log('connected to kv');
+    app.get('/', (req, res) => {
+        res.send({
+            "message": "alive"
+        })
+        res.end()
+    });
+    app.get('/file', async function (req, res) {
+        try {
+            // let fileName = 'files/calemdario cheems 2022.pdf'
+            let fileName = req.query.url;
+            
+            let stripedName = fileName.split("/")
+            stripedName = stripedName[stripedName.length -1]
+    
+            let extension = stripedName.split(".")
+            extension = extension[extension.length -1]
+    
+            let mimeType = MimeType.lookup(extension)
+            let r = await shared(fileName);
+    
+            res.contentType(mimeType);
+            //res.set('Content-disposition', 'attachment; filename=' + stripedName);
+            res.send(r);
+            res.end();
+        } catch (e) {
+            res.json(500, {
+                message: e.message
+            })
+            res.end()
+        }
+    })
+    console.log("starting webapp")
+    app.listen(port, () => {
+        console.log(`Example app listening at http://localhost:${port}`)
+    })
+    
 })
 .catch(e => {
     console.log(e.message)
+    throw e
 });
-
-app.get('/', async function (req, res) {
-    try {
-        // let fileName = 'files/calemdario cheems 2022.pdf'
-        let fileName = req.query.url;
-        
-        let stripedName = fileName.split("/")
-        stripedName = stripedName[stripedName.length -1]
-
-        let extension = stripedName.split(".")
-        extension = extension[extension.length -1]
-
-        let mimeType = MimeType.lookup(extension)
-        let r = await shared(fileName);
-
-        res.contentType(mimeType)
-        //res.set('Content-disposition', 'attachment; filename=' + stripedName);
-        res.send(r)
-        res.end()
-    } catch (e) {
-        res.json(500, {
-            message: e.message
-        })
-        res.end()
-    }
-})
-  
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
