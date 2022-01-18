@@ -1,5 +1,5 @@
-const { ShareServiceClient, StorageSharedKeyCredential } = require("@azure/storage-file-share");
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { ClientSecretCredential } = require("@azure/identity");
 const connStr = process.env.STORAGE_KEY
 
 async function streamToBuffer(readableStream) {
@@ -16,7 +16,15 @@ async function streamToBuffer(readableStream) {
 }
 
 async function connectToBlobContainer(filename) {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.STORAGE_KEY);
+  const clientCred = new ClientSecretCredential(
+    process.env.AZURE_TENANT_ID, 
+    process.env.AZURE_CLIENT_ID, 
+    process.env.AZURE_CLIENT_SECRET
+  );
+  const blobServiceClient = new BlobServiceClient(
+    `https://${process.env.STORAGE_NAME}.blob.core.windows.net`,
+    clientCred
+  );
   const containerClient = blobServiceClient.getContainerClient(process.env.CONTAINER);
   const blockBlobClient = containerClient.getBlockBlobClient(filename)
   const data = await blockBlobClient.download(0)
@@ -24,4 +32,6 @@ async function connectToBlobContainer(filename) {
   return response
 }
 
-module.exports = connectToBlobContainer
+module.exports = {
+  connect: connectToBlobContainer
+}

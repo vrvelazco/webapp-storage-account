@@ -9,15 +9,15 @@ const app = express()
 const port = process.env.PORT || 8080
 async function getKV () {
     try {
-        const credential = new DefaultAzureCredential();
+        const credential = new DefaultAzureCredential(); // getting credentials from ENV VARS
         const kvName = process.env.VAULT_NAME
         const url = `https://${kvName}.vault.azure.net`
         const client = new SecretClient(url, credential)
 
         const localContainer = await client.getSecret('container')
         process.env.CONTAINER = localContainer.value
-        const localSecret = await client.getSecret('storagekey')
-        process.env.STORAGE_KEY = localSecret.value
+        const localSecret = await client.getSecret('storagename')
+        process.env.STORAGE_NAME = localSecret.value
         return true
     } catch (e) {
         throw e
@@ -44,7 +44,7 @@ getKV()
             extension = extension[extension.length -1]
     
             let mimeType = MimeType.lookup(extension)
-            let r = await shared(fileName);
+            let r = await shared.connect(fileName);
     
             res.contentType(mimeType);
             //res.set('Content-disposition', 'attachment; filename=' + stripedName);
